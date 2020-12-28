@@ -113,5 +113,4 @@ nc <- 3
 # JAGS
 out1_rap_spring = jags(win.data, inits, params1, "rap_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
 
-
 out2_rap_spring = jags(win.data, inits, params2, "rap_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
