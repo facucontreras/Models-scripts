@@ -113,5 +113,4 @@ nc <- 3
 # JAGS
 out1_graniv_spring = jags(win.data, inits, params1, "graniv_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
 
-
 out2_graniv_spring = jags(win.data, inits, params2, "graniv_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
