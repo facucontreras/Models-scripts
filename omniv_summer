@@ -1,0 +1,116 @@
+str(win.data <- list(y = y, acrop = acrop, org = organic farming, nrep = dim(y)[2],nspec= dim(y)[3], nfarm= dim(y)[4], J=J))
+
+#JAGS code
+sink("omniv_summer.txt")
+cat("model {
+
+# Missing covariates
+    for (e in 1:nfarm){ 
+  	  for(j in 1:J[e]) {
+    
+ 	    acrop[j,e] ~ dnorm(mu.acrop ,   tau.acrop)
+	    org[j,e] ~ dbern (porg) 
+	                     }#nfarm
+                      }#J
+                       
+      tau.acrop <-pow(sd.acrop ,-2)
+      sd.acrop ~ dunif(0,1)
+      mu.acrop ~ dnorm(0,1)
+    
+      porg ~ dunif(0,1)
+      
+#Hyperpriors
+      mu.co.lpsi ~ dnorm(0, 1/1.25^2)     
+      mu.co.betalpsi1 ~ dnorm(0, 1/1.25^2)
+      mu.co.betalpsi2 ~ dnorm(0, 1/1.25^2)
+      mu.co.betalpsi3 ~ dnorm(0, 1/1.25^2)
+      mu.co.lp ~ dnorm(0, 1/1.25^2)
+    
+      tau.co.lpsi <- pow(sd.co.lpsi, -2)   
+      tau.co.betalpsi1 <- pow(sd.co.betalpsi1, -2)
+      tau.co.betalpsi2 <- pow(sd.co.betalpsi2, -2)
+      tau.co.betalpsi3 <- pow(sd.co.betalpsi3, -2)
+      tau.co.lp <- pow(sd.co.lp, -2) 
+    
+      sd.co.lpsi ~ dunif(0,1) 
+      sd.co.betalpsi1 ~ dunif(0,1)
+      sd.co.betalpsi2 ~ dunif(0,1)
+      sd.co.betalpsi3 ~ dunif(0,1)
+      sd.co.lp ~ dunif(0,1)
+      
+# Priors for species-specific effects
+    for (i in 1:nspec){
+      mu.sp.lpsi[i] ~ dnorm(mu.co.lpsi, tau.co.lpsi) 
+      betalpsi1[i] ~ dnorm(mu.co.betalpsi1, tau.co.betalpsi1)
+      betalpsi2[i] ~ dnorm(mu.co.betalpsi2, tau.co.betalpsi2)
+      betalpsi3[i] ~ dnorm(mu.co.betalpsi3, tau.co.betalpsi3)
+      lp[i] ~ dnorm(mu.co.lp, tau.co.lp)
+    
+      tau.sp.lpsi[i] <- pow(sd.sp.lpsi[i],-2)   
+      sd.sp.lpsi[i] ~ dunif(0,1)
+                      } #nspec
+    
+# Priors for species-specific and random establishment effects
+    for (i in 1:nspec){
+     for (e in 1:nfarm){ 
+      lpsi[i,e] ~ dnorm (mu.sp.lpsi[i], tau.sp.lpsi[i])
+                        } #nfarm
+                       } #nspec
+    
+# Ecological model, process model (true occurrence at site j) 
+   for (e in 1:nfarm){          #loop over farm
+    for (j in 1:J[e]) {         #loop over points
+     for (i in 1:nspec){        #loop over species
+      logit(psi[j,i,e]) <- lpsi[i,e] + betalpsi1[i]*acrop[j,e] + betalpsi2[i]*org[j,e] + betalpsi3[i]*acrop[j,e]*org[j,e]
+    
+      z[j,i,e] ~ dbern(psi[j,i,e])
+                       } #nfarm
+                      } #nspec
+                     } #nsite
+    
+# Observation model for site j, replicate nrep=k, nspec=i
+    for (i in 1:nspec){
+      logit(p[i]) <- lp[i]      
+    
+   for (e in 1:nfarm) {
+    for (j in 1:J[e])  {         #loop sobre sitio 
+     for (k in 1:nrep)   {        
+      mu.p[j,k,i,e] <- z[j,i,e]*p[i]  
+      y[j,k,i,e] ~ dbern(mu.p[j,k,i,e])
+                         } #nrep
+                        } #J
+                       } #nfarm
+                      } #nspec
+    
+    # Derived quantities
+    
+    for (e in 1:nfarm){ 
+     for (j in 1:J[e]) {                                           
+      Nsite [j,e] <- sum (z[j,,e])
+                       } #J
+                      } #nfarm
+    } #model
+    ",fill=TRUE)
+
+sink()
+
+zst <- apply(y,c(1,3,4),max)
+
+inits <- function(){list(z=zst)}
+
+# parametros a monitorear
+
+params1 <- c("mu.sp.lpsi","lpsi","lp","betalpsi1","betalpsi2","betalpsi3")
+
+params2 <- c( "mu.co.lpsi","mu.co.betalpsi1","mu.co.betalpsi2","mu.co.betalpsi3","mu.co.lp")
+
+# MCMC
+ni <- 300000    
+nt <- 10  
+nb <- 150000
+nc <- 3
+
+# JAGS
+out1_omniv_summer = jags(win.data, inits, params1, "omniv_summer.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
+
+out2_omniv_summer = jags(win.data, inits, params2, "omniv_summer.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
