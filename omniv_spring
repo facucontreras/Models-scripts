@@ -111,7 +111,7 @@ nb <- 150000
 nc <- 3
 
 # JAGS
-out1_omniv_spring = jags(win.data, inits, params1, "insect_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
+out1_omniv_spring = jags(win.data, inits, params1, "omniv_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
 
 
-out2_omniv_spring = jags(win.data, inits, params2, "insect_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
+out2_omniv_spring = jags(win.data, inits, params2, "omniv_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
