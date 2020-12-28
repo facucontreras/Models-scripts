@@ -113,5 +113,4 @@ nc <- 3
 # JAGS
 out1_insect_spring = jags(win.data, inits, params1, "insect_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
 
-
 out2_insect_spring = jags(win.data, inits, params2, "insect_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
