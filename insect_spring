@@ -54,8 +54,8 @@ cat("model {
     for (i in 1:nspec){
      for (e in 1:nfarm){ 
       lpsi[i,e] ~ dnorm (mu.sp.lpsi[i], tau.sp.lpsi[i])
-                       } #nfarm
-                      } #nspec
+                        } #nfarm
+                       } #nspec
     
 # Ecological model, process model (true occurrence at site j) 
    for (e in 1:nfarm){          #loop over farm
