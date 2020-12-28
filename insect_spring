@@ -1,4 +1,4 @@
-str(win.data <- list(y = y, acrop = acrop, org = organic farming, nrep =  dim(y)[2],                      		          nspec=  dim(y)[3],  nfarm= dim(y)[4],  J=J))
+str(win.data <- list(y = y, acrop = acrop, org = organic farming, nrep = dim(y)[2],nspec= dim(y)[3], nfarm= dim(y)[4], J=J))
 
 #JAGS code
 sink("insect_spring.txt")
@@ -58,9 +58,9 @@ cat("model {
                       } #nspec
     
 # Ecological model, process model (true occurrence at site j) 
-   for (e in 1:nfarm){                                          #loop over farm
-    for (j in 1:J[e]) {                                              #loop over points
-     for (i in 1:nspec){                                          #loop over species
+   for (e in 1:nfarm){          #loop over farm
+    for (j in 1:J[e]) {         #loop over points
+     for (i in 1:nspec){        #loop over species
       logit(psi[j,i,e]) <- lpsi[i,e] + betalpsi1[i]*acrop[j,e] + betalpsi2[i]*org[j,e] + betalpsi3[i]*acrop[j,e]*org[j,e]
     
       z[j,i,e] ~ dbern(psi[j,i,e])
@@ -73,7 +73,7 @@ cat("model {
       logit(p[i]) <- lp[i]      
     
    for (e in 1:nfarm) {
-    for (j in 1:J[e])  {            #loop sobre sitio 
+    for (j in 1:J[e])  {         #loop sobre sitio 
      for (k in 1:nrep)   {        
       mu.p[j,k,i,e] <- z[j,i,e]*p[i]  
       y[j,k,i,e] ~ dbern(mu.p[j,k,i,e])
@@ -102,8 +102,7 @@ inits <- function(){list(z=zst)}
 
 params1 <- c("mu.sp.lpsi","lpsi","lp","betalpsi1","betalpsi2","betalpsi3")
 
-params2 <- c( "mu.co.lpsi","mu.co.betalpsi1","mu.co.betalpsi2","mu.co.betalpsi3",
-                       "mu.co.lp")
+params2 <- c( "mu.co.lpsi","mu.co.betalpsi1","mu.co.betalpsi2","mu.co.betalpsi3","mu.co.lp")
 
 # MCMC
 ni <- 300000    
@@ -112,9 +111,7 @@ nb <- 150000
 nc <- 3
 
 # JAGS
-out1_insect_spring = jags(win.data, inits, params1, "insect_spring.txt", n.chains=nc, 
-                                          n.iter=ni, n.burnin=nb, n.thin=nt)
+out1_insect_spring = jags(win.data, inits, params1, "insect_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
 
 
-out2_ insect_spring = jags(win.data, inits, params2, "insect_spring.txt", n.chains=nc, 
-                                           n.iter=ni, n.burnin=nb, n.thin=nt)
+out2_insect_spring = jags(win.data, inits, params2, "insect_spring.txt", n.chains=nc, n.iter=ni, n.burnin=nb, n.thin=nt)
